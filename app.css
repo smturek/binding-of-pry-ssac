@@ -1,0 +1,15 @@
+.title {
+  text-align: center;
+  color: white;
+}
+
+#foo {
+  height: 540px;
+  width: 940px;
+  margin: 0 auto;
+  margin-bottom: 30px;
+}
+
+html {
+  background: black;
+}
