@@ -11,6 +11,7 @@ var levelString = "";
 var levelText;
 var announcement;
 var gameOver;
+var startOver;
 var kills
 
 var player;
@@ -135,13 +136,17 @@ function create() {
   exitText = game.add.text(880, 460, 'Exit', {font: '20px Arial', fill: '#fff'});
   exitText.anchor.setTo(0.5, 0.5);
 
-  gameOver = game.add.text(game.world.centerX,game.world.centerY,' ', { font: '84px Arial', fill: '#fff' });
+  gameOver = game.add.text(game.world.centerX,game.world.centerY - 30,' ', { font: '84px Arial', fill: '#fff' });
   gameOver.anchor.setTo(0.5, 0.5);
   gameOver.visible = false;
 
-  kills= game.add.text(game.world.centerX, game.world.centerY + 70, ' ', {font: '26px Arial', fill: '#fff'});
+  kills= game.add.text(game.world.centerX, game.world.centerY + 40, ' ', {font: '26px Arial', fill: '#fff'});
   kills.anchor.setTo(0.5, 0.5);
   kills.visible = false;
+
+  startOver = game.add.text(game.world.centerX, game.world.centerY + 110, 'Is that the best you can do?  Click to try again!', {font: '20px Arial', fill: '#fff'});
+  startOver.anchor.setTo(0.5, 0.5);
+  startOver.visible = false;
 
   announcement = game.add.text(game.world.centerX, 50, ' ', {font: '26px Arial', fill: '#fff'});
   announcement.anchor.setTo(0.5, 0.5);
@@ -251,11 +256,13 @@ function renderLevel() {
   else if(level === 1) {
     monster = monsters.create(225, game.world.centerY, 'monster');
     monster.anchor.setTo(0.5, 0.5);
+    monster.body.immovable = true;
     textLeft.text = "Bug";
     textLeft.visible = true;
 
     monster = monsters.create(675, game.world.centerY, 'monster');
     monster.anchor.setTo(0.5, 0.5);
+    monster.body.immovable = true;
     textRight.text = "Kill all bugs to reveal exit";
     textRight.visible = true;
 
@@ -456,11 +463,36 @@ function playerHit(player, bullet) {
 
   if (lives.countLiving() < 1) {
     player.kill();
-    gameOver.text = "YOU HAVE DIED";
-    kills.text = "YOU HAVE SLAIN " + killCount + " MONSTERS!" ;
+    gameOver.text = "YOU'RE DEAD!";
+    kills.text = "AND YOU ONLY KILLED " + killCount + " BUGS...";
     kills.visible = true;
     gameOver.visible = true;
+    startOver.visible = true;
+    textRight.visible = false;
+    textLeft.visible = false;
+    game.input.onTap.addOnce(restart,this);
   }
+}
+
+function restart() {
+  exit.kill();
+  drops.callAll("kill");
+  bullets.callAll("kill");
+  enemyBullets.callAll("kill");
+  monsters.destroy(true, true);
+  tutorials.callAll('kill');
+  doubleShot = false;
+  doubleSpeed = false;
+  kills.visible = false;
+  gameOver.visible = false;
+  startOver.visible = false;
+  textRight.visible = false;
+  textLeft.visible = false;
+  exitText.visible = false;
+  level = 0;
+  killCount = 0;
+  monsterFireRate = 1200
+  create ();
 }
 
 function hitsWall(bullet) {
