@@ -478,6 +478,7 @@ function playerHit(player, bullet) {
 
 function restart() {
   exit.kill();
+  player.destroy();
   drops.callAll("kill");
   bullets.callAll("kill");
   enemyBullets.callAll("kill");
