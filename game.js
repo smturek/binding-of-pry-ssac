@@ -54,7 +54,7 @@ function preload() {
   game.load.image('wide', 'assets/wide.png');
   game.load.image('tall', 'assets/tall.png');
   game.load.image('exit', 'assets/exit.png');
-  game.load.image('player', 'assets/player.png');
+  game.load.spritesheet('player', 'assets/player.png', 20, 20, 2);
   game.load.image('monster', 'assets/monster.png');
   game.load.image('blastMonster', 'assets/blastmonster.png');
   game.load.image('monster2', 'assets/monster2.png');
@@ -152,7 +152,7 @@ function create() {
   announcement.anchor.setTo(0.5, 0.5);
   announcement.alpha = 0;
 
-  player = game.add.sprite(game.world.centerX,game.world.centerY, 'player');
+  player = game.add.sprite(game.world.centerX, game.world.centerY, 'player', 0);
   game.physics.arcade.enable(player);
   player.body.collideWorldBounds= true;
   player.anchor.setTo(0.5, 0.5);
@@ -463,6 +463,8 @@ function playerHit(player, bullet) {
 
   if (lives.countLiving() < 1) {
     player.kill();
+    player.visible = true;
+    player.frame = 1;
     gameOver.text = "YOU'RE DEAD!";
     kills.text = "AND YOU ONLY KILLED " + killCount + " BUGS...";
     kills.visible = true;
