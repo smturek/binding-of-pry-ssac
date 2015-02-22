@@ -104,7 +104,7 @@ function create() {
   enemyBullets = game.add.group();
   enemyBullets.enableBody = true;
   enemyBullets.physicsBodyType = Phaser.Physics.ARCADE;
-  enemyBullets.createMultiple(100, 'enemyBullet');
+  enemyBullets.createMultiple(200, 'enemyBullet');
   enemyBullets.setAll('outOfBoundsKill', true);
   enemyBullets.setAll('checkWorldBounds', true);
 
