@@ -140,7 +140,7 @@ function create() {
   gameOver.anchor.setTo(0.5, 0.5);
   gameOver.visible = false;
 
-  kills= game.add.text(game.world.centerX, game.world.centerY + 40, ' ', {font: '26px Arial', fill: '#fff'});
+  kills = game.add.text(game.world.centerX, game.world.centerY + 40, ' ', {font: '26px Arial', fill: '#fff'});
   kills.anchor.setTo(0.5, 0.5);
   kills.visible = false;
 
@@ -495,6 +495,7 @@ function restart() {
   level = 0;
   killCount = 0;
   monsterFireRate = 1200
+  playerFiringRate = 300;
   create ();
 }
 
