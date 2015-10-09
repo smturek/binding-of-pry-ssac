@@ -21,12 +21,17 @@ Pryssac.GameState = {
     create: function() {
         //groups
         this.walls = this.add.group();
+        this.bullets = game.add.group();
+        this.enemyBullets = game.add.group();
+        this.monsters = game.add.group();
+        this.lives = game.add.group();
+        this.drops = game.add.group();
+        this.tutorials = game.add.group();
+
 
         //create player
         this.player = this.add.sprite(this.game.world.centerX, this.game.world.centerY, 'player');
         this.game.physics.arcade.enable(this.player);
-
-        //this.player = new Pryssac.Player(this, this.game.world.centerX, this.game.world.centerY, 'monster');
 
         //create walls
         var wall = new Pryssac.Wall(this, 0, 0, 'wide');
@@ -126,7 +131,6 @@ Pryssac.GameState = {
 // function create() {
 //
 //   //player's bullet group
-//   bullets = game.add.group();
 //   bullets.enableBody = true;
 //   bullets.physicsBodyType = Phaser.Physics.ARCADE;
 //   bullets.createMultiple(30, 'bullet');
@@ -134,25 +138,21 @@ Pryssac.GameState = {
 //   bullets.setAll('checkWorldBounds', true);
 //
 //   //enemy's bullet group
-//   enemyBullets = game.add.group();
 //   enemyBullets.enableBody = true;
 //   enemyBullets.physicsBodyType = Phaser.Physics.ARCADE;
 //   enemyBullets.createMultiple(200, 'enemyBullet');
 //   enemyBullets.setAll('outOfBoundsKill', true);
 //   enemyBullets.setAll('checkWorldBounds', true);
-//
-//   monsters = game.add.group()
+
 //   monsters.enableBody = true;
 //
-//   lives = game.add.group();
 //   for(var i = 0; i < playerMaxLife; i++) {
 //     life = lives.create(854 + 25 * i, 2, 'life', 0);
 //   }
 //
-//   drops = game.add.group();
+
 //   drops.enableBody = true;
 //
-//   tutorials = game.add.group();
 //
 //   tutorial = tutorials.create(225, game.world.centerY, 'powerUp');
 //   tutorial.anchor.setTo(0.5, 0.5);
