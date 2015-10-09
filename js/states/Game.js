@@ -9,6 +9,7 @@ Pryssac.GameState = {
         this.PLAYER_MAX_LIFE = 3;
         this.PLAYER_FIRING_RATE = 300;
         this.MONSTER_FIRING_RATE = 1200;
+        this.BULLET_TIMER = 0;
 
         //input keys
         this.keys = this.game.input.keyboard.createCursorKeys();
@@ -21,12 +22,12 @@ Pryssac.GameState = {
     create: function() {
         //groups
         this.walls = this.add.group();
-        this.playerBullets = game.add.group();
-        this.enemyBullets = game.add.group();
-        this.monsters = game.add.group();
-        this.lives = game.add.group();
-        this.drops = game.add.group();
-        this.tutorials = game.add.group();
+        this.playerBullets = this.add.group();
+        this.enemyBullets = this.add.group();
+        this.monsters = this.add.group();
+        this.lives = this.add.group();
+        this.drops = this.add.group();
+        this.tutorials = this.add.group();
 
 
         //create player
@@ -54,6 +55,7 @@ Pryssac.GameState = {
 
         //collisions
         this.game.physics.arcade.collide(this.player, this.walls);
+        this.game.physics.arcade.overlap(this.walls, this.playerBullets, this.killBullet);
 
         if(this.player.alive) {
             if (this.moveUp.isDown) {
@@ -70,31 +72,32 @@ Pryssac.GameState = {
             }
 
             if (this.keys.left.isDown) {
-                //fireBullet("left");
+                this.fireBullet("left");
             }
             else if (this.keys.right.isDown) {
-                //fireBullet("right");
+                this.fireBullet("right");
             }
             else if (this.keys.up.isDown) {
-                //fireBullet("up");
+                this.fireBullet("up");
             }
             else if (this.keys.down.isDown) {
-                //fireBullet("down");
+                this.fireBullet("down");
             }
         }
     },
     fireBullet: function(direction) {
         var bullet, bullet2;
-        if (game.time.now > bulletTimer) {
-            bullet = bullets.getFirstExists(false);
+
+        if (this.time.now > this.BULLET_TIMER) {
+            bullet = this.playerBullets.getFirstExists(false);
 
             if (!bullet) {
                 //create a bullet if there is no bullet found in the group
-                bullet = new Pryssac.Bullet(this, player.x, player.y, 'bullet');
+                bullet = new Pryssac.Bullet(this, this.player.x, this.player.y, 'bullet');
                 this.playerBullets.add(bullet);
             }
             else {
-                  bullet.reset(player.x, player.y);
+                  bullet.reset(this.player.x, this.player.y);
             }
 
             if(direction === "up") {
@@ -110,8 +113,11 @@ Pryssac.GameState = {
               bullet.body.velocity.x = -400;
             }
 
-                bulletTimer = game.time.now + playerFiringRate;
+                this.BULLET_TIMER = this.time.now + this.PLAYER_FIRING_RATE;
         }
+    },
+    killBullet: function(wall, bullet) {
+        bullet.kill();
     }
 };
 
@@ -126,39 +132,29 @@ Pryssac.GameState = {
 // var gameOver;
 // var startOver;
 // var kills
-//
-// var player;
-// var lives;
+
 // var life;
-//
+
 // var tutorials;
 // var tutorial;
 // var textRight;
 // var textLeft;
 // var exitText;
-//
+
 // var drops;
 // var drop;
 // var doubleSpeed = false;
 // var doubleShot = false;
-//
+
 // var monsters;
 // var monster;
 // var killCount = 0;
 // var livingMonsters;
 // var variant = false;
-//
-// var bullets;
-// var bulletTimer = 0;
-//
+
 // var enemyBullets
 // var enemyTimer = 0;
-//
-// var moveUp;
-// var moveDown;
-// var moveRight;
-// var moveLeft;
-//
+
 // function create() {
 //   for(var i = 0; i < playerMaxLife; i++) {
 //     life = lives.create(854 + 25 * i, 2, 'life', 0);
@@ -328,56 +324,6 @@ Pryssac.GameState = {
 //   noExit = false;
 // }
 //
-// function fireBullet(direction) {
-//   if (game.time.now > bulletTimer) {
-//     bullet = bullets.getFirstExists(false);
-//     bullet.anchor.setTo(0.5, 0.5);
-//     if (bullet)
-//     {
-//         if(doubleShot) {
-//           bullet.reset(player.x - 6, player.y - 6);
-//         }
-//         else {
-//           bullet.reset(player.x, player.y);
-//         }
-//
-//         if(direction === "up") {
-//           bullet.body.velocity.y = -400;
-//         }
-//         else if(direction === "down") {
-//           bullet.body.velocity.y = 400;
-//         }
-//         else if(direction === "right") {
-//           bullet.body.velocity.x = 400;
-//         }
-//         else if(direction === "left") {
-//           bullet.body.velocity.x = -400;
-//         }
-//
-//         if(doubleShot) {
-//           bullet = bullets.getFirstExists(false);
-//           if (bullet)
-//           {
-//             bullet.reset(player.x + 6, player.y + 6);
-//             if(direction === "up") {
-//               bullet.body.velocity.y = -400;
-//             }
-//             else if(direction === "down") {
-//               bullet.body.velocity.y = 400;
-//             }
-//             else if(direction === "right") {
-//               bullet.body.velocity.x = 400;
-//             }
-//             else if(direction === "left") {
-//               bullet.body.velocity.x = -400;
-//             }
-//           }
-//         }
-//         bulletTimer = game.time.now + playerFiringRate;
-//     }
-//   }
-// }
-//
 // function pickUp(player, drop) {
 //   drop.kill();
 //   if(drop.key === "lifeUp") {
@@ -498,11 +444,6 @@ Pryssac.GameState = {
 //   playerFiringRate = 300;
 //   create ();
 // }
-//
-// function hitsWall(bullet) {
-//   bullet.kill();
-// }
-//
 // function randomMonster(x, y) {
 //   var monsterType;
 //
