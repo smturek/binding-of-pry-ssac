@@ -1,7 +1,3 @@
-//------------------Notes----------------
-//Line 597
-//Move monsters around like pacman. Some try to cut the player off, surround him, slow him down, etc.
-
 var Pryssac = Pryssac || {};
 
 Pryssac.GameState = {
@@ -9,7 +5,6 @@ Pryssac.GameState = {
         this.PLAYER_MAX_LIFE = 3;
         this.PLAYER_FIRING_RATE = 300;
         this.MONSTER_FIRING_RATE = 1200;
-        this.BULLET_TIMER = 0;
 
         //input keys
         this.keys = this.game.input.keyboard.createCursorKeys();
@@ -20,20 +15,21 @@ Pryssac.GameState = {
         this.moveRight = this.game.input.keyboard.addKey(68);
     },
     create: function() {
+        //create player
+        this.player = this.add.sprite(this.game.world.centerX, this.game.world.centerY, 'player');
+        this.game.physics.arcade.enable(this.player);
+        this.player.anchor.setTo(0.5);
+        this.player.kills = 0;
+        this.player.powerUps = {double: true};
+
         //groups
         this.walls = this.add.group();
-        this.playerBullets = this.add.group();
+        this.playerBullets = new Pryssac.Bullets(this, true, 'bullet');
         this.enemyBullets = this.add.group();
         this.monsters = this.add.group();
         this.lives = this.add.group();
         this.drops = this.add.group();
         this.tutorials = this.add.group();
-
-
-        //create player
-        this.player = this.add.sprite(this.game.world.centerX, this.game.world.centerY, 'player');
-        this.game.physics.arcade.enable(this.player);
-        this.player.anchor.setTo(0.5);
 
         //create walls
         var wall = new Pryssac.Wall(this, 0, 0, 'wide');
@@ -47,6 +43,9 @@ Pryssac.GameState = {
 
         wall = new Pryssac.Wall(this, 920, 0, 'tall');
         this.walls.add(wall);
+
+        //brings player back to top level so other sprites don't cover the sprite
+        this.player.bringToTop();
 
     },
     update: function() {
@@ -72,48 +71,17 @@ Pryssac.GameState = {
             }
 
             if (this.keys.left.isDown) {
-                this.fireBullet("left");
+                this.playerBullets.fire("left");
             }
             else if (this.keys.right.isDown) {
-                this.fireBullet("right");
+                this.playerBullets.fire("right");
             }
             else if (this.keys.up.isDown) {
-                this.fireBullet("up");
+                this.playerBullets.fire("up");
             }
             else if (this.keys.down.isDown) {
-                this.fireBullet("down");
+                this.playerBullets.fire("down");
             }
-        }
-    },
-    fireBullet: function(direction) {
-        var bullet, bullet2;
-
-        if (this.time.now > this.BULLET_TIMER) {
-            bullet = this.playerBullets.getFirstExists(false);
-
-            if (!bullet) {
-                //create a bullet if there is no bullet found in the group
-                bullet = new Pryssac.Bullet(this, this.player.x, this.player.y, 'bullet');
-                this.playerBullets.add(bullet);
-            }
-            else {
-                  bullet.reset(this.player.x, this.player.y);
-            }
-
-            if(direction === "up") {
-              bullet.body.velocity.y = -400;
-            }
-            else if(direction === "down") {
-              bullet.body.velocity.y = 400;
-            }
-            else if(direction === "right") {
-              bullet.body.velocity.x = 400;
-            }
-            else if(direction === "left") {
-              bullet.body.velocity.x = -400;
-            }
-
-                this.BULLET_TIMER = this.time.now + this.PLAYER_FIRING_RATE;
         }
     },
     killBullet: function(wall, bullet) {
@@ -131,7 +99,6 @@ Pryssac.GameState = {
 // var announcement;
 // var gameOver;
 // var startOver;
-// var kills
 
 // var life;
 
@@ -201,7 +168,6 @@ Pryssac.GameState = {
 // function update() {
 //   game.physics.arcade.collide(player, monsters);
 //   game.physics.arcade.collide(monsters, walls);
-//   game.physics.arcade.overlap(bullets, walls, hitsWall);
 //   game.physics.arcade.overlap(enemyBullets, walls, hitsWall);
 //   game.physics.arcade.overlap(monsters, bullets, monsterHit);
 //   game.physics.arcade.overlap(enemyBullets, player, playerHit, null, this);
