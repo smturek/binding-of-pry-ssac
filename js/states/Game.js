@@ -32,6 +32,7 @@ Pryssac.GameState = {
         //create player
         this.player = this.add.sprite(this.game.world.centerX, this.game.world.centerY, 'player');
         this.game.physics.arcade.enable(this.player);
+        this.player.anchor.setTo(0.5);
 
         //create walls
         var wall = new Pryssac.Wall(this, 0, 0, 'wide');
@@ -129,31 +130,9 @@ Pryssac.GameState = {
 // var moveLeft;
 //
 // function create() {
-//
-//   //player's bullet group
-//   bullets.enableBody = true;
-//   bullets.physicsBodyType = Phaser.Physics.ARCADE;
-//   bullets.createMultiple(30, 'bullet');
-//   bullets.setAll('outOfBoundsKill', true);
-//   bullets.setAll('checkWorldBounds', true);
-//
-//   //enemy's bullet group
-//   enemyBullets.enableBody = true;
-//   enemyBullets.physicsBodyType = Phaser.Physics.ARCADE;
-//   enemyBullets.createMultiple(200, 'enemyBullet');
-//   enemyBullets.setAll('outOfBoundsKill', true);
-//   enemyBullets.setAll('checkWorldBounds', true);
-
-//   monsters.enableBody = true;
-//
 //   for(var i = 0; i < playerMaxLife; i++) {
 //     life = lives.create(854 + 25 * i, 2, 'life', 0);
 //   }
-//
-
-//   drops.enableBody = true;
-//
-//
 //   tutorial = tutorials.create(225, game.world.centerY, 'powerUp');
 //   tutorial.anchor.setTo(0.5, 0.5);
 //
@@ -185,10 +164,6 @@ Pryssac.GameState = {
 //   announcement.anchor.setTo(0.5, 0.5);
 //   announcement.alpha = 0;
 //
-//   player = game.add.sprite(game.world.centerX, game.world.centerY, 'player', 0);
-//   game.physics.arcade.enable(player);
-//   player.body.collideWorldBounds= true;
-//   player.anchor.setTo(0.5, 0.5);
 //
 //   levelString = 'Level: ';
 //   levelText = game.add.text(20, 1, levelString + level, { font: '16px arial', fill: '#fff' });
