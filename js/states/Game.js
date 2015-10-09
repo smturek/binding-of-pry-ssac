@@ -21,7 +21,7 @@ Pryssac.GameState = {
     create: function() {
         //groups
         this.walls = this.add.group();
-        this.bullets = game.add.group();
+        this.playerBullets = game.add.group();
         this.enemyBullets = game.add.group();
         this.monsters = game.add.group();
         this.lives = game.add.group();
@@ -81,6 +81,36 @@ Pryssac.GameState = {
             else if (this.keys.down.isDown) {
                 //fireBullet("down");
             }
+        }
+    },
+    fireBullet: function(direction) {
+        var bullet, bullet2;
+        if (game.time.now > bulletTimer) {
+            bullet = bullets.getFirstExists(false);
+
+            if (!bullet) {
+                //create a bullet if there is no bullet found in the group
+                bullet = new Pryssac.Bullet(this, player.x, player.y, 'bullet');
+                this.playerBullets.add(bullet);
+            }
+            else {
+                  bullet.reset(player.x, player.y);
+            }
+
+            if(direction === "up") {
+              bullet.body.velocity.y = -400;
+            }
+            else if(direction === "down") {
+              bullet.body.velocity.y = 400;
+            }
+            else if(direction === "right") {
+              bullet.body.velocity.x = 400;
+            }
+            else if(direction === "left") {
+              bullet.body.velocity.x = -400;
+            }
+
+                bulletTimer = game.time.now + playerFiringRate;
         }
     }
 };

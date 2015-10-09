@@ -9,6 +9,8 @@ Pryssac.Bullet = function(state, x, y, asset) {
     //init physics body
     this.game.physics.arcade.enable(this);
 
+    this.anchor.setTo(0.5);
+
 };
 
 Pryssac.Bullet.prototype = Object.create(Phaser.Sprite.prototype);
