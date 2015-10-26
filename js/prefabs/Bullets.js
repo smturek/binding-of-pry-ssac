@@ -1,13 +1,13 @@
 var Pryssac = Pryssac || {};
 
-Pryssac.Bullets = function(state, isPlayer, asset) {
+Pryssac.Bullets = function(state, isPlayer) {
     Phaser.Group.call(this, state.game);
 
     this.state = state;
     this.game = state.game;
     this.player = state.player;
     this.isPlayer = isPlayer;
-    this.asset = asset;
+    this.asset = 'bullet';
     this.TIMER = 0;
 
 };

@@ -20,12 +20,11 @@ Pryssac.GameState = {
         this.game.physics.arcade.enable(this.player);
         this.player.anchor.setTo(0.5);
         this.player.kills = 0;
-        this.player.powerUps = {double: true};
+        this.player.powerUps = {};
 
         //groups
         this.walls = this.add.group();
-        this.playerBullets = new Pryssac.Bullets(this, true, 'bullet');
-        this.enemyBullets = this.add.group();
+        this.playerBullets = new Pryssac.Bullets(this, true);
         this.monsters = this.add.group();
         this.lives = this.add.group();
         this.drops = this.add.group();
@@ -44,7 +43,7 @@ Pryssac.GameState = {
         wall = new Pryssac.Wall(this, 920, 0, 'tall');
         this.walls.add(wall);
 
-        //brings player back to top level so other sprites don't cover the sprite
+        //brings player back to top level so other sprites don't cover it
         this.player.bringToTop();
 
     },
