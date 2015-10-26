@@ -5,6 +5,7 @@ Pryssac.GameState = {
         this.PLAYER_MAX_LIFE = 3;
         this.PLAYER_FIRING_RATE = 300;
         this.MONSTER_FIRING_RATE = 1200;
+        this.LEVEL = 1;
 
         //input keys
         this.keys = this.game.input.keyboard.createCursorKeys();
@@ -46,6 +47,8 @@ Pryssac.GameState = {
         //brings player back to top level so other sprites don't cover it
         this.player.bringToTop();
 
+        this.renderUI();
+
     },
     update: function() {
         this.player.body.velocity.y = 0;
@@ -85,6 +88,15 @@ Pryssac.GameState = {
     },
     killBullet: function(wall, bullet) {
         bullet.kill();
+    },
+    renderUI: function() {
+        var life;
+
+        for(var i = 0; i < this.PLAYER_MAX_LIFE; i++) {
+            life = this.lives.create(854 + 25 * i, 2, 'life', 0);
+        }
+
+        var levelText = this.add.text(20, 1, 'Level: ' + this.LEVEL, { font: '16px arial', fill: '#fff' });
     }
 };
 
@@ -122,9 +134,7 @@ Pryssac.GameState = {
 // var enemyTimer = 0;
 
 // function create() {
-//   for(var i = 0; i < playerMaxLife; i++) {
-//     life = lives.create(854 + 25 * i, 2, 'life', 0);
-//   }
+//
 //   tutorial = tutorials.create(225, game.world.centerY, 'powerUp');
 //   tutorial.anchor.setTo(0.5, 0.5);
 //
@@ -155,11 +165,6 @@ Pryssac.GameState = {
 //   announcement = game.add.text(game.world.centerX, 50, ' ', {font: '26px Arial', fill: '#fff'});
 //   announcement.anchor.setTo(0.5, 0.5);
 //   announcement.alpha = 0;
-//
-//
-//   levelString = 'Level: ';
-//   levelText = game.add.text(20, 1, levelString + level, { font: '16px arial', fill: '#fff' });
-//
 //   showExit();
 //
 // }
