@@ -6,6 +6,12 @@ Pryssac.GameState = {
         this.PLAYER_FIRING_RATE = 300;
         this.MONSTER_FIRING_RATE = 1200;
         this.LEVEL = 1;
+        this.TILE_WIDTH = 16;
+        this.TILE_HEIGHT = 16;
+
+        //Level generation key
+        this.FLOOR = 0;
+        this.WALL = 1;
 
         //input keys
         this.keys = this.game.input.keyboard.createCursorKeys();
@@ -31,18 +37,7 @@ Pryssac.GameState = {
         this.drops = this.add.group();
         this.tutorials = this.add.group();
 
-        //create walls
-        var wall = new Pryssac.Wall(this, 0, 0, 'wide');
-        this.walls.add(wall);
-
-        wall = new Pryssac.Wall(this, 0, 520, 'wide');
-        this.walls.add(wall);
-
-        wall = new Pryssac.Wall(this, 0, 0, 'tall');
-        this.walls.add(wall);
-
-        wall = new Pryssac.Wall(this, 920, 0, 'tall');
-        this.walls.add(wall);
+        this.generateLevel();
 
         //brings player back to top level so other sprites don't cover it
         this.player.bringToTop();
@@ -97,6 +92,42 @@ Pryssac.GameState = {
         }
 
         var levelText = this.add.text(20, 1, 'Level: ' + this.LEVEL, { font: '16px arial', fill: '#fff' });
+    },
+    generateLevel: function() {
+        var level = [];
+        var i, j, levelRow;
+        var levelRows = Math.floor(Pryssac.game.height / this.TILE_HEIGHT);
+        var levelCols = Math.floor(Pryssac.game.width / this.TILE_WIDTH);
+
+        for(i = 0; i <= levelRows; i++) {
+            levelRow = [];
+            for(j = 0; j < levelCols; j++) {
+                if(i === 0 || i === levelRows) {
+                    levelRow.push(this.WALL);
+                }
+                else if (j === 0 || j === levelCols - 1) {
+                    levelRow.push(this.WALL);
+                }
+                else {
+                    levelRow.push(this.FLOOR);
+                }
+            }
+            level.push(levelRow);
+        }
+
+        this.renderLevel(level);
+    },
+    renderLevel: function(level) {
+        var i, j, wall;
+
+        for(i = 0; i < level.length; i++) {
+            for(j = 0; j < level[i].length; j++) {
+                if(level[i][j] == 1) {
+                    wall = new Pryssac.Wall(this, j * this.TILE_WIDTH, i * this.TILE_HEIGHT, 'wall');
+                    this.walls.add(wall);
+                }
+            }
+        }
     }
 };
 

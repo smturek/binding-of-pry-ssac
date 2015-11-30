@@ -8,8 +8,7 @@ Pryssac.PreloadState = {
 
         this.load.setPreloadSprite(this.preloadBar);
 
-        this.load.image('wide', 'assets/wide.png');
-        this.load.image('tall', 'assets/tall.png');
+        this.load.image('wall', 'assets/wall.png');
         this.load.image('exit', 'assets/exit.png');
         this.load.image('monster', 'assets/monster.png');
         this.load.image('blastMonster', 'assets/blastmonster.png');
