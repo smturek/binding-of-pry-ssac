@@ -8,10 +8,12 @@ Pryssac.GameState = {
         this.LEVEL = 1;
         this.TILE_WIDTH = 16;
         this.TILE_HEIGHT = 16;
+        this.CHANCE_OF_MONSTER = 0.005;
 
         //Level generation key
         this.FLOOR = 0;
         this.WALL = 1;
+        this.MONSTER = 2;
 
         //input keys
         this.keys = this.game.input.keyboard.createCursorKeys();
@@ -115,19 +117,41 @@ Pryssac.GameState = {
             level.push(levelRow);
         }
 
+        level = this.addMonsters(level);
+
         this.renderLevel(level);
     },
     renderLevel: function(level) {
-        var i, j, wall;
+        var i, j, cell;
 
         for(i = 0; i < level.length; i++) {
             for(j = 0; j < level[i].length; j++) {
-                if(level[i][j] == 1) {
-                    wall = new Pryssac.Wall(this, j * this.TILE_WIDTH, i * this.TILE_HEIGHT, 'wall');
-                    this.walls.add(wall);
+                if(level[i][j] == this.WALL) {
+                    cell = new Pryssac.Wall(this, j * this.TILE_WIDTH, i * this.TILE_HEIGHT, 'wall');
+                    this.walls.add(cell);
+                }
+                else if (level[i][j] == this.MONSTER) {
+                    cell = new Pryssac.Monster(this, j * this.TILE_WIDTH, i * this.TILE_HEIGHT, 'monster');
+                    this.monsters.add(cell);
                 }
             }
         }
+    },
+    addMonsters: function(level) {
+        var levelWithMonsters = level;
+        var i,j, chance;
+
+        for(i = 0; i < levelWithMonsters.length; i++) {
+            for(j = 0; j < levelWithMonsters[i].length; j++) {
+                chance = Math.random();
+
+                if(chance < this.CHANCE_OF_MONSTER && levelWithMonsters[i][j] === 0) {
+                    levelWithMonsters[i][j] = 2;
+                }
+            }
+        }
+
+        return levelWithMonsters;
     }
 };
 
