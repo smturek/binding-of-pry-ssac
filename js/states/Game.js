@@ -34,6 +34,7 @@ Pryssac.GameState = {
         //groups
         this.walls = this.add.group();
         this.playerBullets = new Pryssac.Bullets(this, true);
+        this.monsterBullets = this.add.group();
         this.monsters = this.add.group();
         this.lives = this.add.group();
         this.drops = this.add.group();
@@ -53,6 +54,8 @@ Pryssac.GameState = {
 
         //collisions
         this.game.physics.arcade.collide(this.player, this.walls);
+        this.game.physics.arcade.collide(this.player, this.monsters);
+        this.game.physics.arcade.collide(this.monsters, this.monsters);
         this.game.physics.arcade.overlap(this.walls, this.playerBullets, this.killBullet);
 
         if(this.player.alive) {

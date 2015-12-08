@@ -16,7 +16,7 @@ Pryssac.PreloadState = {
         this.load.image('monster3', 'assets/monster3.png');
         this.load.image('boss', 'assets/boss.png');
         this.load.image('bullet', 'assets/bullet.png');
-        this.load.image('enemyBullet', 'assets/ebullet.png');
+        this.load.image('monsterBullet', 'assets/ebullet.png');
         this.load.image('powerUp', 'assets/powerup.png');
         this.load.image('lifeUp', 'assets/lifeup.png');
 
