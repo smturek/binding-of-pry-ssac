@@ -23,20 +23,21 @@ Pryssac.Monster.prototype.update = function() {
 };
 
 Pryssac.Monster.prototype.fire = function() {
-    console.log("BOOM!");
-    bullet = this.state.monsterBullets.getFirstExists(false);
+    if(this.alive) {
+        bullet = this.state.monsterBullets.getFirstExists(false);
 
-    if (!bullet) {
-        //create a bullet if there is no bullet found in the group
-        bullet = new Phaser.Sprite(this.game, this.x, this.y, 'monsterBullet');
-        this.game.physics.arcade.enable(bullet);
-        bullet.anchor.setTo(0.5);
-        this.state.monsterBullets.add(bullet);
-    }
-    else {
-        //reset dead bullet
-        bullet.reset(this.x, this.y);
-    }
+        if (!bullet) {
+            //create a bullet if there is no bullet found in the group
+            bullet = new Phaser.Sprite(this.game, this.x, this.y, 'monsterBullet');
+            this.game.physics.arcade.enable(bullet);
+            bullet.anchor.setTo(0.5);
+            this.state.monsterBullets.add(bullet);
+        }
+        else {
+            //reset dead bullet
+            bullet.reset(this.x, this.y);
+        }
 
-    this.game.physics.arcade.moveToObject(bullet, this.state.player, 200);
+        this.game.physics.arcade.moveToObject(bullet, this.state.player, 200);
+    }
 };
