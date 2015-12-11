@@ -8,7 +8,9 @@ Pryssac.GameState = {
         this.LEVEL = 1;
         this.TILE_WIDTH = 16;
         this.TILE_HEIGHT = 16;
-        this.CHANCE_OF_MONSTER = 0.005;
+        this.CHANCE_OF_MONSTER = 0.002;
+
+        this.killCount = 0;
 
         //Level generation key
         this.FLOOR = 0;
@@ -39,6 +41,14 @@ Pryssac.GameState = {
         this.lives = this.add.group();
         this.drops = this.add.group();
         this.tutorials = this.add.group();
+
+        //text blocks
+        this.deathText = this.add.text(this.game.world.centerX, this.game.world.centerY - 100, "", {fontSize: 48, fill: 'white'});
+        this.deathText.anchor.setTo(0.5);
+        this.killsText = this.add.text(this.game.world.centerX, this.game.world.centerY, "", {fontSize: 32, fill: 'white'});
+        this.killsText.anchor.setTo(0.5);
+        this.restartText = this.add.text(this.game.world.centerX, this.game.world.centerY + 100, "", {fontSize: 24, fill: 'white'});
+        this.restartText.anchor.setTo(0.5);
 
         this.generateLevel();
 
@@ -170,14 +180,32 @@ Pryssac.GameState = {
 
         if (this.lives.countLiving() < 1) {
             player.kill();
-            player.visible = true;  
+            player.visible = true;
             player.frame = 1;
+
+            this.gameOver();
         }
     },
     hitMonster: function(monster, bullet) {
         bullet.kill();
         monster.damage(1);
-    }
+
+        if(monster.health === 0) {
+            this.killCount++;
+        }
+    },
+    gameOver: function() {
+        this.player.sendToBack();
+
+        this.deathText.text = "YOU'RE DEAD!";
+        this.killsText.text = "YOU KILLED " + this.killCount + " MONSTERS";
+        // this.restartText.text = "Click anywhere to return to the main menu";
+        //
+        // this.game.input.onTap.addOnce(this.restart);
+    },
+    // restart: function() {
+    //     this.state.start('Menu');
+    // }
 };
 
 
@@ -253,20 +281,7 @@ Pryssac.GameState = {
 //     }
 //   }
 // }
-//
-// function playerHit(player, bullet) {
-//
-//     gameOver.text = "YOU'RE DEAD!";
-//     kills.text = "AND YOU ONLY KILLED " + killCount + " BUGS...";
-//     kills.visible = true;
-//     gameOver.visible = true;
-//     startOver.visible = true;
-//     textRight.visible = false;
-//     textLeft.visible = false;
-//     game.input.onTap.addOnce(restart,this);
-//   }
-// }
-//
+
 // function restart() {
 //   exit.kill();
 //   player.destroy();
