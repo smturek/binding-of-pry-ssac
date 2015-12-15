@@ -1,6 +1,6 @@
 var Pryssac = Pryssac || {};
 
-Pryssac.game = new Phaser.Game(928, 543, Phaser.AUTO, 'foo');
+Pryssac.game = new Phaser.Game(928, 543.9, Phaser.AUTO, 'foo');
 
 Pryssac.game.state.add('Boot', Pryssac.BootState);
 Pryssac.game.state.add('Preload', Pryssac.PreloadState);

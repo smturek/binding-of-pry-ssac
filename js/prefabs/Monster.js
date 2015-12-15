@@ -28,7 +28,7 @@ Pryssac.Monster.prototype.fire = function() {
 
         if (!bullet) {
             //create a bullet if there is no bullet found in the group
-            bullet = new Phaser.Sprite(this.game, this.x, this.y, 'monsterBullet');
+            bullet = new Phaser.Sprite(this.game, this.x + 8, this.y + 8, 'monsterBullet');
             this.game.physics.arcade.enable(bullet);
             bullet.anchor.setTo(0.5);
             this.state.monsterBullets.add(bullet);

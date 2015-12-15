@@ -5,17 +5,19 @@ Pryssac.GameState = {
         this.PLAYER_MAX_LIFE = 3;
         this.PLAYER_FIRING_RATE = 300;
         this.MONSTER_FIRING_RATE = 1200;
-        this.LEVEL = 1;
         this.TILE_WIDTH = 16;
         this.TILE_HEIGHT = 16;
         this.CHANCE_OF_MONSTER = 0.002;
 
         this.killCount = 0;
 
-        //Level generation key
+        //Level generation
+        this.level = [];
+        this.levelNumber = 1;
         this.FLOOR = 0;
         this.WALL = 1;
         this.MONSTER = 2;
+        this.EXIT = 3;
 
         //input keys
         this.keys = this.game.input.keyboard.createCursorKeys();
@@ -51,12 +53,11 @@ Pryssac.GameState = {
         this.restartText.anchor.setTo(0.5);
 
         this.generateLevel();
+        this.renderLevel();
+        this.renderUI();
 
         //brings player back to top level so other sprites don't cover it
         this.player.bringToTop();
-
-        this.renderUI();
-
     },
     update: function() {
         this.player.body.velocity.y = 0;
@@ -65,9 +66,11 @@ Pryssac.GameState = {
         //collisions
         this.game.physics.arcade.collide(this.player, this.walls);
         this.game.physics.arcade.collide(this.player, this.monsters);
+        this.game.physics.arcade.overlap(this.player, this.exit, this.nextLevel, null, this);
         this.game.physics.arcade.collide(this.player, this.monsterBullets, this.hitPlayer, null, this);
         this.game.physics.arcade.collide(this.monsters, this.playerBullets, this.hitMonster, null, this);
         this.game.physics.arcade.overlap(this.walls, this.playerBullets, this.killBullet);
+        this.game.physics.arcade.overlap(this.walls, this.monsterBullets, this.killBullet);
 
         if(this.player.alive) {
             if (this.moveUp.isDown) {
@@ -104,13 +107,12 @@ Pryssac.GameState = {
         var life;
 
         for(var i = 0; i < this.PLAYER_MAX_LIFE; i++) {
-            life = this.lives.create(854 + 25 * i, 2, 'life', 0);
+            life = this.lives.create(854 + 25 * i, 0, 'life', 0);
         }
 
-        var levelText = this.add.text(20, 1, 'Level: ' + this.LEVEL, { font: '16px arial', fill: '#fff' });
+        this.levelText = this.add.text(20, 0, 'Level: ' + this.levelNumber, { font: '16px arial', fill: '#fff' });
     },
     generateLevel: function() {
-        var level = [];
         var i, j, levelRow;
         var levelRows = Math.floor(Pryssac.game.height / this.TILE_HEIGHT);
         var levelCols = Math.floor(Pryssac.game.width / this.TILE_WIDTH);
@@ -128,44 +130,72 @@ Pryssac.GameState = {
                     levelRow.push(this.FLOOR);
                 }
             }
-            level.push(levelRow);
+            this.level.push(levelRow);
         }
 
-        level = this.addMonsters(level);
-
-        this.renderLevel(level);
+        this.addMonsters();
     },
-    renderLevel: function(level) {
+    renderLevel: function() {
         var i, j, cell;
 
-        for(i = 0; i < level.length; i++) {
-            for(j = 0; j < level[i].length; j++) {
-                if(level[i][j] == this.WALL) {
-                    cell = new Pryssac.Wall(this, j * this.TILE_WIDTH, i * this.TILE_HEIGHT, 'wall');
-                    this.walls.add(cell);
+        for(i = 0; i < this.level.length; i++) {
+            for(j = 0; j < this.level[i].length; j++) {
+                if(this.level[i][j] == this.WALL) {
+                    this.placeWall(j * this.TILE_WIDTH, i * this.TILE_HEIGHT);
                 }
-                else if (level[i][j] == this.MONSTER) {
-                    cell = new Pryssac.Monster(this, j * this.TILE_WIDTH, i * this.TILE_HEIGHT, 'monster');
-                    this.monsters.add(cell);
+                else if (this.level[i][j] == this.MONSTER) {
+                    this.placeMonster(j * this.TILE_WIDTH, i * this.TILE_HEIGHT);
                 }
             }
         }
     },
-    addMonsters: function(level) {
-        var levelWithMonsters = level;
+    addExit: function() {
+        row = this.rnd.integerInRange(1, this.level.length - 1);
+        col = this.rnd.integerInRange(1, this.level[1].length - 1);
+
+        this.exit = this.add.sprite(col * this.TILE_WIDTH, row * this.TILE_HEIGHT, 'exit');
+        this.game.physics.arcade.enable(this.exit);
+    },
+    addMonsters: function() {
         var i,j, chance;
 
-        for(i = 0; i < levelWithMonsters.length; i++) {
-            for(j = 0; j < levelWithMonsters[i].length; j++) {
+        for(i = 0; i < this.level.length; i++) {
+            for(j = 0; j < this.level[i].length; j++) {
                 chance = Math.random();
 
-                if(chance < this.CHANCE_OF_MONSTER && levelWithMonsters[i][j] === 0) {
-                    levelWithMonsters[i][j] = 2;
+                if(chance < this.CHANCE_OF_MONSTER && this.level[i][j] === 0) {
+                    this.level[i][j] = 2;
                 }
             }
         }
+    },
+    placeMonster: function(col, row) {
+        var monster = this.monsters.getFirstExists(false);
 
-        return levelWithMonsters;
+        if (!monster) {
+            //create a bullet if there is no bullet found in the group
+            monster = new Pryssac.Monster(this, col, row, 'monster');
+            this.game.physics.arcade.enable(monster);
+            this.monsters.add(monster);
+        }
+        else {
+            //reset dead bullet
+            monster.reset(col, row);
+        }
+    },
+    placeWall: function(col, row) {
+        var wall = this.walls.getFirstExists(false);
+
+        if (!wall) {
+            //create a bullet if there is no bullet found in the group
+            wall = new Pryssac.Wall(this, col, row, 'wall');
+            this.game.physics.arcade.enable(wall);
+            this.walls.add(wall);
+        }
+        else {
+            //reset dead bullet
+            wall.reset(col, row);
+        }
     },
     hitPlayer: function(player, bullet) {
         bullet.kill();
@@ -174,8 +204,6 @@ Pryssac.GameState = {
 
         if(life) {
             life.kill();
-            life.visible = true;
-            life.frame = 1;
         }
 
         if (this.lives.countLiving() < 1) {
@@ -193,6 +221,11 @@ Pryssac.GameState = {
         if(monster.health === 0) {
             this.killCount++;
         }
+
+        //check to see if it was the last monster, and if so add exit
+        if(!this.monsters.getFirstAlive()) {
+            this.addExit();
+        }
     },
     gameOver: function() {
         this.player.sendToBack();
@@ -203,6 +236,17 @@ Pryssac.GameState = {
         //
         // this.game.input.onTap.addOnce(this.restart);
     },
+    nextLevel: function() {
+        this.exit.kill();
+
+        this.levelNumber++;
+        this.levelText.text = "Level: " + this.levelNumber;
+
+        this.level = [];
+
+        this.generateLevel();
+        this.renderLevel();
+    }
     // restart: function() {
     //     this.state.start('Menu');
     // }
