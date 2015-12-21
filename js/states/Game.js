@@ -7,7 +7,7 @@ Pryssac.GameState = {
         this.MONSTER_FIRING_RATE = 1200;
         this.TILE_WIDTH = 16;
         this.TILE_HEIGHT = 16;
-        this.CHANCE_OF_MONSTER = 0.002;
+        this.CHANCE_OF_MONSTER = 0.005;
 
         this.killCount = 0;
 
@@ -51,6 +51,8 @@ Pryssac.GameState = {
         this.killsText.anchor.setTo(0.5);
         this.restartText = this.add.text(this.game.world.centerX, this.game.world.centerY + 100, "", {fontSize: 24, fill: 'white'});
         this.restartText.anchor.setTo(0.5);
+        this.announcementText = this.add.text(this.game.world.centerX, 50, "", {fontSize: 24, fill: 'white'});
+        this.announcementText.anchor.setTo(0.5);
 
         this.generateLevel();
         this.renderLevel();
@@ -67,6 +69,7 @@ Pryssac.GameState = {
         this.game.physics.arcade.collide(this.player, this.walls);
         this.game.physics.arcade.collide(this.player, this.monsters);
         this.game.physics.arcade.overlap(this.player, this.exit, this.nextLevel, null, this);
+        this.game.physics.arcade.overlap(this.player, this.drops, this.pickUp, null, this);
         this.game.physics.arcade.collide(this.player, this.monsterBullets, this.hitPlayer, null, this);
         this.game.physics.arcade.collide(this.monsters, this.playerBullets, this.hitMonster, null, this);
         this.game.physics.arcade.overlap(this.walls, this.playerBullets, this.killBullet);
@@ -187,7 +190,7 @@ Pryssac.GameState = {
         var wall = this.walls.getFirstExists(false);
 
         if (!wall) {
-            //create a bullet if there is no bullet found in the group
+            //create a wall if there is no bullet found in the group
             wall = new Pryssac.Wall(this, col, row, 'wall');
             this.game.physics.arcade.enable(wall);
             this.walls.add(wall);
@@ -220,6 +223,20 @@ Pryssac.GameState = {
 
         if(monster.health === 0) {
             this.killCount++;
+            var rand = this.game.rnd.integerInRange(0, 10);
+            var drop;
+            if(rand < 1 && (!this.player.powerUps.doubleShot || !this.player.powerUps.doubleSpeed)) {
+                drop = this.add.sprite(monster.x, monster.y, "powerUp");
+                this.game.physics.arcade.enable(drop);
+                drop.body.immovable = true;
+                this.drops.add(drop);
+            }
+            else if(rand < 8) {
+                drop = this.add.sprite(monster.x, monster.y, "lifeUp");
+                this.game.physics.arcade.enable(drop);
+                drop.body.immovable = true;
+                this.drops.add(drop);
+            }
         }
 
         //check to see if it was the last monster, and if so add exit
@@ -246,55 +263,57 @@ Pryssac.GameState = {
 
         this.generateLevel();
         this.renderLevel();
+    },
+    pickUp: function(player, drop) {
+        drop.kill();
+        if(drop.key === "lifeUp") {
+            var missingLife = this.lives.getFirstDead();
+            var nextLife;
+            if(missingLife) {
+                nextLife = this.lives.getChildAt(missingLife.z);
+            }
+
+            if(nextLife && nextLife.alive === false) {
+                nextLife.revive();
+            }
+            else if(missingLife) {
+                missingLife.revive();
+            }
+        }
+        else if(drop.key === "powerUp") {
+            var rand, tween;
+
+            if(!this.player.powerUps.doubleSpeed && !this.player.powerUps.doubleShot) {
+                rand = this.game.rnd.integerInRange(0, 1);
+            }
+            else if(this.player.powerUps.doubleSpeed) {
+                rand = 1;
+            }
+            else if(this.player.powerUps.doubleShot) {
+                rand = 0;
+            }
+
+            if(rand === 0 && !this.player.powerUps.doubleSpeed) {
+                this.PLAYER_FIRING_RATE = this.PLAYER_FIRING_RATE - (this.PLAYER_FIRING_RATE / 2);
+                this.player.powerUps.doubleSpeed = true;
+                this.announcementText.text = "Double Speed!";
+                this.announcementText.alpha = 1;
+                tween = this.game.add.tween(this.announcementText).to( { alpha: 0 }, 2000, "Linear", true);
+                tween.start();
+            }
+            else if(rand === 1 && !this.player.powerUps.doubleShot) {
+                this.player.powerUps.doubleShot = true;
+                this.announcementText.text = "Double Shot!";
+                this.announcementText.alpha = 1;
+                tween = this.game.add.tween(this.announcementText).to( { alpha: 0 }, 2000, "Linear", true);
+                tween.start();
+            }
+        }
     }
     // restart: function() {
     //     this.state.start('Menu');
     // }
 };
-
-
-//
-// function pickUp(player, drop) {
-//   drop.kill();
-//   if(drop.key === "lifeUp") {
-//     // makes sure to add the life at the end of the missing lives so that diplay is consistent
-//     var missingLife = lives.getFirstDead();
-//     if(missingLife) {
-//       //probably better as a for loop if I start adding more lives
-//       var missingLifeIndex = lives.getChildIndex(missingLife);
-//       if(lives.getChildAt(missingLifeIndex + 1).alive === false) {
-//         missingLife = lives.getChildAt(missingLifeIndex + 1);
-//       }
-//       missingLife.reset(missingLife.x, missingLife.y);
-//       missingLife.frame = 0;
-//     }
-//   }
-//   else if(drop.key === "powerUp") {
-//     if(!doubleSpeed && !doubleShot) {
-//       var rand = game.rnd.integerInRange(0, 1);
-//     }
-//     else if(doubleSpeed) {
-//       rand = 1;
-//     }
-//     else if(doubleShot) {
-//       rand = 0;
-//     }
-//
-//     if(rand === 0 && !doubleSpeed) {
-//       playerFiringRate = playerFiringRate - (playerFiringRate / 2);
-//       doubleSpeed = true;
-//       announcement.text = "Speed Shot";
-//       game.add.tween(announcement).to( { alpha: 1 }, 2000, "Linear", true, 0, 0, true);
-//     }
-//     else if(rand === 1 && !doubleShot) {
-//       doubleShot = true;
-//       announcement.text = "Double Shot";
-//       game.add.tween(announcement).to( { alpha: 1 }, 2000, "Linear", true, 0, 0, true);
-//     }
-//   }
-//
-// }
-//
 // function monsterHit(monster, bullet) {
 //   bullet.kill();
 //   monster.damage(1);
@@ -312,41 +331,8 @@ Pryssac.GameState = {
 //       offspring = monsters.create(monster.x + 20, monster.y + 20, 'monster');
 //     }
 //     else{
-//       var rand = game.rnd.integerInRange(0, 10);
-//       if(rand < 1 && PowerUp && level > 4) {
-//         drop = drops.create(monster.x, monster.y, "powerUp")
-//         drop.body.immovable = true;
-//         PowerUp = false;
-//       }
-//       else if(rand < 3 && level != 1) {
-//         drop = drops.create(monster.x, monster.y, "lifeUp")
-//         drop.body.immovable = true;
-//       }
 //     }
 //   }
-// }
-
-// function restart() {
-//   exit.kill();
-//   player.destroy();
-//   drops.callAll("kill");
-//   bullets.callAll("kill");
-//   enemyBullets.callAll("kill");
-//   monsters.destroy(true, true);
-//   tutorials.callAll('kill');
-//   doubleShot = false;
-//   doubleSpeed = false;
-//   kills.visible = false;
-//   gameOver.visible = false;
-//   startOver.visible = false;
-//   textRight.visible = false;
-//   textLeft.visible = false;
-//   exitText.visible = false;
-//   level = 0;
-//   killCount = 0;
-//   monsterFireRate = 1200
-//   playerFiringRate = 300;
-//   create ();
 // }
 // function randomMonster(x, y) {
 //   var monsterType;
@@ -400,113 +386,4 @@ Pryssac.GameState = {
 //   }
 //   monster.body.immovable = true;
 //   monster.anchor.setTo(0.5, 0.5);
-// }
-//
-// function enemyFires() {
-//   livingMonsters = [];
-//   monsters.forEachAlive(function(monster) {
-//     livingMonsters.push(monster)
-//   });
-//
-//   if(livingMonsters.length > 0) {
-//     for(var i = 0; i < livingMonsters.length; i++) {
-//       enemyBullet = enemyBullets.getFirstExists(false);
-//       if(enemyBullet) {
-//         enemyBullet.anchor.setTo(0.5, 0.5);
-//         if(livingMonsters[i].key === "monster") {
-//           enemyBullet.reset(livingMonsters[i].x, livingMonsters[i].y);
-//           game.physics.arcade.moveToObject(enemyBullet,player,200);
-//         }
-//         else if(livingMonsters[i].key === "blastMonster") {
-//           enemyBullet.reset(livingMonsters[i].x, livingMonsters[i].y);
-//           enemyBullet.body.velocity.y = -200;
-//
-//           enemyBullet = enemyBullets.getFirstExists(false);
-//           enemyBullet.reset(livingMonsters[i].x, livingMonsters[i].y);
-//           enemyBullet.body.velocity.y = 200;
-//
-//           enemyBullet = enemyBullets.getFirstExists(false);
-//           enemyBullet.reset(livingMonsters[i].x, livingMonsters[i].y);
-//           enemyBullet.body.velocity.x = -200;
-//
-//           enemyBullet = enemyBullets.getFirstExists(false);
-//           enemyBullet.reset(livingMonsters[i].x, livingMonsters[i].y);
-//           enemyBullet.body.velocity.x = 200;
-//         }
-//         else if(livingMonsters[i].key === "monster2") {
-//           enemyBullet.reset(livingMonsters[i].x, livingMonsters[i].y);
-//           game.physics.arcade.moveToObject(enemyBullet,player,200);
-//         }
-//         else if(livingMonsters[i].key === "monster3") {
-//           enemyBullet.reset(livingMonsters[i].x, livingMonsters[i].y);
-//           //can I move this toward the place where the player is going to be?
-//           game.physics.arcade.moveToObject(enemyBullet,player,400);
-//         }
-//         else if(livingMonsters[i].key === "boss") {
-//           enemyBullet.reset(livingMonsters[i].x - 20, livingMonsters[i].y - 20);
-//           enemyBullet.body.velocity.y = -200;
-//
-//           enemyBullet = enemyBullets.getFirstExists(false);
-//           enemyBullet.reset(livingMonsters[i].x - 20, livingMonsters[i].y - 20);
-//           enemyBullet.body.velocity.y = 200;
-//
-//           enemyBullet = enemyBullets.getFirstExists(false);
-//           enemyBullet.reset(livingMonsters[i].x - 20, livingMonsters[i].y - 20);
-//           enemyBullet.body.velocity.x = -200;
-//
-//           enemyBullet = enemyBullets.getFirstExists(false);
-//           enemyBullet.reset(livingMonsters[i].x - 20, livingMonsters[i].y - 20);
-//           enemyBullet.body.velocity.x = 200;
-//
-//           enemyBullet = enemyBullets.getFirstExists(false);
-//           enemyBullet.reset(livingMonsters[i].x + 20, livingMonsters[i].y + 20);
-//           enemyBullet.body.velocity.y = -200;
-//
-//           enemyBullet = enemyBullets.getFirstExists(false);
-//           enemyBullet.reset(livingMonsters[i].x + 20, livingMonsters[i].y + 20);
-//           enemyBullet.body.velocity.y = 200;
-//
-//           enemyBullet = enemyBullets.getFirstExists(false);
-//           enemyBullet.reset(livingMonsters[i].x + 20, livingMonsters[i].y + 20);
-//           enemyBullet.body.velocity.x = -200;
-//
-//           enemyBullet = enemyBullets.getFirstExists(false);
-//           enemyBullet.reset(livingMonsters[i].x + 20, livingMonsters[i].y + 20);
-//           enemyBullet.body.velocity.x = 200;
-//
-//           enemyBullet = enemyBullets.getFirstExists(false);
-//           enemyBullet.reset(livingMonsters[i].x + 20, livingMonsters[i].y - 20);
-//           enemyBullet.body.velocity.y = -200;
-//
-//           enemyBullet = enemyBullets.getFirstExists(false);
-//           enemyBullet.reset(livingMonsters[i].x + 20, livingMonsters[i].y - 20);
-//           enemyBullet.body.velocity.y = 200;
-//
-//           enemyBullet = enemyBullets.getFirstExists(false);
-//           enemyBullet.reset(livingMonsters[i].x + 20, livingMonsters[i].y - 20);
-//           enemyBullet.body.velocity.x = -200;
-//
-//           enemyBullet = enemyBullets.getFirstExists(false);
-//           enemyBullet.reset(livingMonsters[i].x + 20, livingMonsters[i].y - 20);
-//           enemyBullet.body.velocity.x = 200;
-//
-//           enemyBullet = enemyBullets.getFirstExists(false);
-//           enemyBullet.reset(livingMonsters[i].x - 20, livingMonsters[i].y + 20);
-//           enemyBullet.body.velocity.y = -200;
-//
-//           enemyBullet = enemyBullets.getFirstExists(false);
-//           enemyBullet.reset(livingMonsters[i].x - 20, livingMonsters[i].y + 20);
-//           enemyBullet.body.velocity.y = 200;
-//
-//           enemyBullet = enemyBullets.getFirstExists(false);
-//           enemyBullet.reset(livingMonsters[i].x - 20, livingMonsters[i].y + 20);
-//           enemyBullet.body.velocity.x = -200;
-//
-//           enemyBullet = enemyBullets.getFirstExists(false);
-//           enemyBullet.reset(livingMonsters[i].x - 20, livingMonsters[i].y + 20);
-//           enemyBullet.body.velocity.x = 200;
-//         }
-//       }
-//     }
-//   }
 // }

@@ -34,7 +34,7 @@ Pryssac.Bullets.prototype.fire = function(direction) {
         }
 
         //create other bullets if the player has the appropriate powerups
-        if(this.isPlayer && this.player.powerUps.double) {
+        if(this.isPlayer && this.player.powerUps.doubleShot) {
             bullet2 = this.getFirstExists(false);
 
             if (!bullet2) {
