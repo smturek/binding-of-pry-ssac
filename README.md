@@ -12,3 +12,4 @@ Think Binding of Issac, but everything is just multi-colored blocks
 ### Key Features
 * Procedurally generated levels. No two play-throughs are identical
 * Enemies sometimes drop powerups
+* Bullet objects are managed in pools and reused so that the game won't slow down over time
